@@ -173,8 +173,16 @@ namespace PngOutlinerApplication
                 using (var dstImage1 = dst1.ToImage<Bgra, byte>())
                 {
                     dstImage.SetIfAlpha(dstImage1);
-                    dstImage.SetIfAlpha(srcImage2);
-                    dstImage.SetIfAlpha(srcImage1);
+                    if (FirstAboveCheckBox.Checked)
+                    {
+                        dstImage.SetIfAlpha(srcImage2);
+                        dstImage.SetIfAlpha(srcImage1);
+                    }
+                    else
+                    {
+                        dstImage.SetIfAlpha(srcImage1);
+                        dstImage.SetIfAlpha(srcImage2);
+                    }
                 }
 
                 OutputMat = dstImage.Mat;
