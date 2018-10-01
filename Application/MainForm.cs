@@ -131,18 +131,30 @@ namespace PngOutlinerApplication
         {
             using (var mat1 = new Mat(path1, ImreadModes.Unchanged))
             using (var mat2 = new Mat(path2, ImreadModes.Unchanged))
+            using (var dst1 = new Mat(mat1.Size, mat1.Depth, mat1.NumberOfChannels))
+            using (var dst2 = new Mat(mat1.Size, mat1.Depth, mat1.NumberOfChannels))
+            using (var binary = new Mat())
             {
-                var dst = new Mat(mat1.Size, mat1.Depth, mat1.NumberOfChannels);
-                var mask1 = mat1.Split()[3]; // TODO: leak?
-                CvInvoke.Add(dst, mat1, dst, mask1);
-                var mask2 = mat2.Split()[3]; // TODO: leak?
-                CvInvoke.Add(dst, mat2, dst, mask2);
+                var splitted1 = mat1.Split();
+                using (splitted1[0])
+                using (splitted1[1])
+                using (splitted1[2])
+                using (var mask1 = splitted1[3])
+                {
+                    CvInvoke.Add(dst1, mat1, dst1, mask1);
+                }
 
+                var splitted2 = mat2.Split();
+                using (splitted2[0])
+                using (splitted2[1])
+                using (splitted2[2])
+                using (var mask2 = splitted2[3])
+                {
+                    CvInvoke.Add(dst1, mat2, dst1, mask2);
+                }
 
-                var binary = new Mat();
-                CvInvoke.Canny(dst, binary, 100, 200);
+                CvInvoke.Canny(dst1, binary, 100, 200);
 
-                var dst2 = new Mat(mat1.Size, mat1.Depth, mat1.NumberOfChannels);
                 var contours = new VectorOfVectorOfPoint();
                 CvInvoke.FindContours(binary, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxTc89Kcos);
 
@@ -158,7 +170,7 @@ namespace PngOutlinerApplication
                 var dstImage = dst2.ToImage<Bgra, byte>();
                 using (var srcImage1 = mat1.ToImage<Bgra, byte>())
                 using (var srcImage2 = mat2.ToImage<Bgra, byte>())
-                using (var dstImage1 = dst.ToImage<Bgra, byte>())
+                using (var dstImage1 = dst1.ToImage<Bgra, byte>())
                 {
                     dstImage.SetIfAlpha(dstImage1);
                     dstImage.SetIfAlpha(srcImage2);
