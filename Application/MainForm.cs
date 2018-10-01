@@ -160,11 +160,11 @@ namespace PngOutlinerApplication
 
                 for (var i = 0; i < contours.Size; ++i)
                 {
-                    CvInvoke.DrawContours(dst2, contours, i, ToScalar(Color1), Thickness1 + Thickness2, LineType.AntiAlias);
+                    CvInvoke.DrawContours(dst2, contours, i, ToScalar(Color2), Thickness1 + Thickness2, LineType.AntiAlias);
                 }
                 for (var i = 0; i < contours.Size; ++i)
                 {
-                    CvInvoke.DrawContours(dst2, contours, i, ToScalar(Color2), Thickness2, LineType.AntiAlias);
+                    CvInvoke.DrawContours(dst2, contours, i, ToScalar(Color1), Thickness1, LineType.AntiAlias);
                 }
 
                 var dstImage = dst2.ToImage<Bgra, byte>();
