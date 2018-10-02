@@ -134,29 +134,20 @@ namespace PngOutlinerApplication
             using (var dst1 = new Mat(mat1.Size, mat1.Depth, mat1.NumberOfChannels))
             using (var dst2 = new Mat(mat1.Size, mat1.Depth, mat1.NumberOfChannels))
             using (var binary = new Mat())
+            using (var mask1 = new Mat())
+            using (var mask2 = new Mat())
             {
-                var splitted1 = mat1.Split();
-                using (splitted1[0])
-                using (splitted1[1])
-                using (splitted1[2])
-                using (var mask1 = splitted1[3])
-                {
-                    CvInvoke.Add(dst1, mat1, dst1, mask1);
-                }
+                CvInvoke.ExtractChannel(mat1, mask1, 3);
+                CvInvoke.ExtractChannel(mat2, mask2, 3);
 
-                var splitted2 = mat2.Split();
-                using (splitted2[0])
-                using (splitted2[1])
-                using (splitted2[2])
-                using (var mask2 = splitted2[3])
-                {
-                    CvInvoke.Add(dst1, mat2, dst1, mask2);
-                }
+
+                CvInvoke.Add(dst1, mat1, dst1, mask1);
+                CvInvoke.Add(dst1, mat2, dst1, mask2);
 
                 CvInvoke.Canny(dst1, binary, 100, 200);
 
                 var contours = new VectorOfVectorOfPoint();
-                CvInvoke.FindContours(binary, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxTc89Kcos);
+                CvInvoke.FindContours(binary, contours, null, RetrType.External, ChainApproxMethod.ChainApproxTc89Kcos);
 
                 for (var i = 0; i < contours.Size; ++i)
                 {
@@ -194,6 +185,21 @@ namespace PngOutlinerApplication
         {
             return new MCvScalar(color.B, color.G, color.R, color.A);
         }
+
+        /*
+        private static Mat NormalizeMat(Mat src)
+        {
+            var dst = new Mat(src.Size, src.Depth, src.NumberOfChannels);
+
+            using (var mask = new Mat())
+            {
+                CvInvoke.ExtractChannel(src, mask, 3);
+                CvInvoke.Add(dst, src, dst, mask);
+            }
+
+            return dst;
+        }
+        */
 
         #endregion
     }
